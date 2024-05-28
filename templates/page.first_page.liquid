@@ -1,2 +1,58 @@
 {% assign myVar = 'Hello world!' %}
+{% assign potion = "Health Potion" %}
+{% assign myArray = "item1, item2, item3, item4" | split:", " %}
+
 <h1>{{ myVar }}</h1>
+<p>This is my first shopify website!</p>
+
+<!--filters are evaluated from left to right-->
+{{ potion | upcase | remove: "HEALTH" }}
+
+{% if myVar contains 'Hello' %}
+  The heading of this page is a greeting!
+{% elseif myVar contains 'Yo'%}
+  This is a informal greeting.
+{% endif %}
+
+{% unless true and false %}
+  This expression evaluates to false and hence this message shows up 
+{% endunless %}
+
+<p>{{ potion | handle }}</p>
+
+<!--pages is an array that is stored in the -->
+<p>About us page URL: {{ pages['Page'].url }}</p>
+
+{% unless myArray == empty %}
+  <p>{{ myArray |  join: ', '  }}: This array is not empty</p>
+{% endunless %}
+
+<!-- The following is the whitespace control convention used with loops -->
+<h3>List:</h3>
+<ul>
+  {% for item in myArray -%}
+    <li>{{ item }}</li>
+  {%- endfor %}
+</ul>
+
+<h3>Potion check:</h3>
+{% unless potion == empty %}
+  <p>The potion is full</p>
+{% else %}
+  <p>The potion is empty</p>
+{% endunless %}
+
+<h3>Limited list looping:</h3>
+{% for item in myArray limit:2 -%}
+  {{ item }}
+{%- endfor %}
+
+<h3>Use of case:</h3>
+{% case potion %}
+  {% when "Health Potion" %}
+    <p>This has restorative properties.</p>
+  {% when "Boost Potion" %}
+    <p>This potion will make you faster.</p>
+  {% else %}
+    <p>This is an unknown, mysterious potion.</p>
+{% endcase %}
