@@ -1,58 +1,533 @@
-{% assign myVar = 'Hello world!' %}
-{% assign potion = "Health Potion" %}
-{% assign myArray = "item1, item2, item3, item4" | split:", " %}
+{% comment %} 
+By default, the layout is theme, so there is no need for the line below, but is included for reference.
+{% endcomment %}
+{% layout 'theme' %}
 
-<h1>{{ myVar }}</h1>
-<p>This is my first shopify website!</p>
+<!doctype html>
+<html>
+  <head>
+    {% assign myVar = 'Hello world!' %}
+    {% comment %} {% assign potion = "Health Potion" %}
+    {% assign myArray = "item1, item2, item3, item4, item5, item6" | split:", " %} {% endcomment %}
+    {% assign headingColor = "Orange" %}
+    {% assign lineColor = "rgb(2, 180, 235)" %}
+    {% comment %} {% assign newArray = "1,2,3,4,5,6,7,8" | split:"," %}
+    {% assign emptyArray = "" | split: ", " %} {% endcomment %}
 
-<!--filters are evaluated from left to right-->
-{{ potion | upcase | remove: "HEALTH" }}
+    <link rel="stylesheet" href="../assets/first_page.css">
+    <p>{{ 'preload.js' | asset_url }}</p>
+    {{ 'preload.js' | asset_url |  preload_tag: as: 'script', type: 'text/javascript' }}
 
-{% if myVar contains 'Hello' %}
-  The heading of this page is a greeting!
-{% elseif myVar contains 'Yo'%}
-  This is a informal greeting.
-{% endif %}
+    {%- assign bold_font = settings.type_body_font | font_modify: 'weight', 'bold' -%}
 
-{% unless true and false %}
-  This expression evaluates to false and hence this message shows up 
-{% endunless %}
+    {% comment %} default ensures that if the modified font is not loaded then the default value is returned {% endcomment %}
 
-<p>{{ potion | handle }}</p>
+    {% assign heavy_font = settings.type_body_font | font_modify: 'weight', '900' | default: bold_font %}
 
-<!--pages is an array that is stored in the -->
-<p>About us page URL: {{ pages['Page'].url }}</p>
+    {% assign oblique_font = settings.type_body_font | font_modify: 'style', 'oblique' | default: bold_font %}
 
-{% unless myArray == empty %}
-  <p>{{ myArray |  join: ', '  }}: This array is not empty</p>
-{% endunless %}
+    {% style %}
+      {{ settings.type_header_font |  font_face: font_display: 'swap' }}
 
-<!-- The following is the whitespace control convention used with loops -->
-<h3>List:</h3>
-<ul>
-  {% for item in myArray -%}
-    <li>{{ item }}</li>
-  {%- endfor %}
-</ul>
+      h1 {
+        color: {{ headingColor }};
+        font-family: Assistant, sans-serif;
+      }
 
-<h3>Potion check:</h3>
-{% unless potion == empty %}
-  <p>The potion is full</p>
-{% else %}
-  <p>The potion is empty</p>
-{% endunless %}
+      h2 {
+        font-weight: {{ heavy_font.weight }};
+      }
 
-<h3>Limited list looping:</h3>
-{% for item in myArray limit:2 -%}
-  {{ item }}
-{%- endfor %}
+      .first-line {
+        color: {{lineColor}};
+      }
 
-<h3>Use of case:</h3>
-{% case potion %}
-  {% when "Health Potion" %}
-    <p>This has restorative properties.</p>
-  {% when "Boost Potion" %}
-    <p>This potion will make you faster.</p>
-  {% else %}
-    <p>This is an unknown, mysterious potion.</p>
-{% endcase %}
+      .text-1 { /* Check to see if the font is nill */
+        font-weight:  {% if oblique_font %}
+                        {{ oblique_font.weight }}
+                      {% else %}
+                        {{ bold_font.weight }}
+                      {% endif %};
+      }
+    {%  endstyle %}
+  </head>
+
+  <body>
+    <div class="main-container">
+      <h1>{{ myVar }}</h1>
+      <p class="first-line">This is my first shopify website!</p>
+
+      <h2>Perfect!</h2>
+
+      <p class="text-1">Sample text</p>
+
+      <!--filters are evaluated from left to right-->
+      {% comment %} {{ potion | upcase | remove: "HEALTH" }}
+
+      {% if myVar contains 'Hello' %}
+        The heading of this page is a greeting!
+      {% elsif myVar contains 'Yo'%}
+        This is a informal greeting.
+      {% endif %}
+
+      {% unless true and false %}
+        This expression evaluates to false and hence this message shows up 
+      {% endunless %}
+
+      <p>{{ potion | handle }}</p>
+
+      <!--pages is an array that is stored in the -->
+      <p>About us page URL: {{ pages['Page'].url }}</p>
+
+      {% unless myArray == empty %}
+        <p>{{ myArray |  join: ', '  }}: This array is not empty</p>
+      {% endunless %}
+
+      <!-- The following is the whitespace control convention used with loops -->
+      <h3>List:</h3>
+      <ul>
+        {% for item in myArray -%}
+          <li>{{ item }}</li>
+        {%- endfor %}
+      </ul>
+
+      <h3>Potion check:</h3>
+      {% unless potion == empty %}
+        <p>The potion is full</p>
+      {% else %}
+        <p>The potion is empty</p>
+      {% endunless %}
+
+      <h3>Limited list looping:</h3>
+      {% for item in myArray limit:2 -%}
+        {{ item }}
+      {%- endfor %}
+
+      <h3>Use of case:</h3>
+      {% case potion %}
+        {% when "Health Potion" %}
+          <p>This has restorative properties.</p>
+        {% when "Boost Potion" %}
+          <p>This potion will make you faster.</p>
+        {% else %}
+          <p>This is an unknown, mysterious potion.</p>
+      {% endcase %}
+
+      <h3>Activate customer password</h3>
+      {% form 'activate_customer_password' %}
+        <!-- Content -->
+      {% endform %}
+
+      <h3>Cart</h3>
+      {% form 'cart', cart %}
+        <!-- Content -->
+      {% endform %}
+
+      <h2>Contact Form</h2>
+      <div class="contact-form">
+          {% form 'contact' %}
+            <div class="form-container">
+              <label class="form-label" for="contact_name">Name</label>
+              <input class="input" type="text" name="contact[name]" id="contact_name" placeholder="Your Name" required>
+
+              <label class="form-label" for="contact_email">Email</label>
+              <input class="input" type="email" name="contact[email]" id="contact_email" placeholder="Your Email" required>
+
+              <label class="form-label" for="contact_message">Message</label>
+              <textarea class="input" name="contact[body]" id="contact_message" cols="30" rows="10" placeholder="Your message..." required></textarea>
+
+              <button type="submit" class="submit-button">Send</button>
+            </div>
+          {% endform %}
+      </div>
+      {% endcomment %}
+
+      {% comment %} <h2>Currency form</h2>
+      {% form 'localization' %}
+        <!-- content -->
+      {% endform %}
+
+      <ul>
+        <!--starts from 'item3'-->
+        {% for item in myArray offset: 2 -%}
+          <li> {{ item }} </li>
+        {%- endfor %}
+      </ul>
+
+      <ul>
+        <!--ends at 'item2'-->
+        {% for item in myArray limit: 2 -%} <!--excludes the limit index-->
+          <li> {{ item }} </li>
+        {%- endfor %}
+      </ul>
+
+      <p>
+        {% for i in (1..5) -%}
+          {{ i }}
+        {%- endfor %}
+      </p>
+
+      <p>
+        {% for number in newArray reversed -%}
+          {{ number }}
+        {%- endfor %}
+      </p>
+
+      <p>
+        {% for item in newArray -%}
+          {%- if forloop.length > 0 -%}
+            {{ item }}
+            {% unless forloop.last %}, {% endunless %}
+          {%- endif -%}
+        {%- endfor %}
+      </p>
+
+      <p>
+        {% for item in emptyArray -%}
+          {{ item }}
+        {% else %}
+          This runs if the array has zero length
+        {%- endfor %}
+      </p>
+
+      <p>
+        {% for item in newArray -%}
+          {% if item == "3" %}
+            {% continue %}
+          {% endif %}
+          {% if item == "6" %}
+            {% break %}
+          {% endif %}
+          {{ item }}
+        {%- endfor %}
+      </p>
+
+      <h3>Cycles</h3>
+      <p> cycle 1: </p>
+      {% for i in (1..5) -%}
+        <!-- Cycle can only be used in a for loop-->
+        {% cycle 'one', 'two', 'three' %}
+      {%- endfor %}
+
+      <p> cycle 2: </p>
+      {% for i in (1..3) -%}
+        <!-- this cycle will start from where the previous was left -->
+        {% cycle 'one', 'two', 'three' %}
+      {%- endfor %}
+
+      <p>cycle group</p>
+      {% for i in (1..4) %}
+        <!--grouped cycles starts from the beginning-->
+        {% cycle 'group_1': 'one', 'two', 'three' %}
+      {% endfor %}
+
+      <p>same grouop of cycle</p>
+      {% for i in (1..3) %}
+        <!--Takes off from where the group_1 previously ended-->
+        {% cycle 'group_1': 'one', 'two', 'three' %}
+      {% endfor %}
+
+      <p> different group </p>
+      {% for i in (1..3) %}
+        {% cycle 'group_2': 'one', 'two', 'three' %}
+      {% endfor %}
+
+      <h3> Tables </h3>
+
+      <!-- logic for creating a table using an array and only storing two items per row-->
+
+      {% assign index = myArray.size | minus: 1 %}
+      {% assign count = 0 %}
+      {% assign tempArray = "" | split:", " %}
+      {% assign tempString = "" %}
+
+      <table>
+        {% for i in (0..index) %}
+          {% assign count = count | plus: 1 %}
+          <!--this following check prevents the [] from appearing, which is present by default in an empty array. So if you append anything to the empty array, it will add the [] to it-->
+          {% if tempString == empty %}
+            {% assign tempString = myArray[i] %}
+          {% else %}
+            {% assign tempVar = tempString | append: ", " | append: myArray[i] %}
+            {% assign tempString = tempVar %}
+          {% endif %}
+
+          {% if count == 2 %}
+            {% assign tempArray = tempString | split: ", " %}
+            {% tablerow item in tempArray %}
+              {{ item }}
+            {% endtablerow %}
+            {% assign count = 0 %}
+            {{ tempString }}
+            {% assign tempArray = "" %}
+            {% assign tempString = "" %}
+          {% endif %}
+        {% endfor %}
+      </table>
+
+      <p>The same table but this time uses 'cols' parameter</p>
+
+      <table>
+        {% tablerow item in myArray cols: 2 %}
+          {{ item }}
+        {% endtablerow %}
+      </table>
+
+      <p>Offset table</p>
+      <table>
+        <!--starts from the element with the index of the offset-->
+        {% tablerow item in myArray offset: 2 cols: 2 %}
+          {{ item }}
+        {% endtablerow %}
+      </table>
+
+      <p>Table using range</p>
+      <table>
+        {% tablerow i in (1..6) cols: 3%}
+          {{ i }}
+        {% endtablerow %}
+      </table> 
+
+      <p>Pagination</p>
+      <div class="cards-container">
+        {% paginate collections['everything'].products by 1, window_size: 2%}
+          {% for product in collections['everything'].products -%}
+            <div class="product-card">
+              <img src="{{ product.featured_image: 'medium' }}" width="200px" height="300px">
+              <h2>{{ product.title }}</h2>
+            </div>
+          {%- endfor -%}
+
+          <!--paginate is an object that is provided with the paginate tag-->
+          {{- paginate | default_pagination }}
+          <!--the above line creates the navigation-->
+        {% endpaginate %}
+      </div>
+
+      <p>
+        {%  liquid 
+          # echo is used in place of {{ }} inside liquid tags
+
+          assign newPotion = "Healing Potion" | downcase
+
+          case newPotion
+            when 'healing potion'
+              assign message = "This is a healing potion"
+            when 'health potion'
+              assign message = "This is a health potion"
+            else 
+              assign message = "Can't identify this potion"
+          endcase
+
+          echo message
+        %}
+      </p>
+        
+      <p>
+        {% raw %}
+          {{ Use these tags to output something to the page. }}
+        {% endraw %}
+      </p>
+
+      {% render 'my-snippet' for collections['everything'].products as product %}
+
+      {% render 'snippet-2', parameter:"Hello world!"%}
+
+      {% assign showTitleUpcase = true %}
+      {% assign title = "Title" %}
+
+      {% capture capStr %}
+        {% if showTitleUpcase %}
+          {{ title | upcase }}
+        {% else %}
+          {{ title | downcase }}
+        {% endif %}
+      {% endcapture %}
+
+      <p>{{ capStr }}</p>
+
+      <!-- 'decrement' decrements the variable first and then displays it-->
+      <!-- 'increment' displays the variable first and then increments the it -->
+      {% decrement counter %}
+      {{ counter }}
+      {% decrement counter %}
+      {% increment counter %}
+      {% increment counter %}
+      {{ counter }}
+
+      {% assign productName = "Magical Potion" %}
+
+      <h2>Filters</h2>
+      <p>{{ productName | upcase }}</p>
+      <p>{{ productName | remove: "Magical" }}</p>
+
+      {% assign items = 'item1, item2, item3, item4, item5' | split: ', ' %}
+      {% assign tools = 'tool1, tool2, tool3, tool4, tool5' | split: ', ' %}
+      {% assign concatenatedArray = items | concat: tools %}
+
+      {%- assign first_product = collections['everything'].products | first %}
+      <p>{{ first_product.title }}</p>
+
+      <p>{{ collections['everything'].products.last.title }}</p>
+
+      <p>
+        {% for item in concatenatedArray %}
+        {{ item }} {% unless forloop.last %}, {% endunless %}
+        {% endfor %}
+      </p>
+      
+      <p>{{ items | join: '|' }}</p>
+
+      {% assign product_titles = collections['everything'].products | map: 'title' | join: ', '%}
+
+      <p>{{ product_titles }}</p>
+      <p>The same but reversed: </p>
+      <p>{{ product_titles | split: ', ' | reverse | join: ', '}}</p>
+
+      <p>This is a reversed string: </p>
+      <p>{{ "This is a reversed string" | split: '' | reverse | join: '' }}</p>
+
+      {% liquid 
+        assign unsorted = "cars, books, worlds, nature" | split: ", "
+
+        assign sorted = unsorted | sort | join: ", "
+        echo sorted
+
+        echo "  |  "
+
+        assign naturalSort = unsorted | sort_natural | join: ", "
+        echo naturalSort
+      %}
+
+      <p>{{ "Clothing" | link_to_type: class: 'link' }}</p>
+
+      <p>{{ "Homotel" | link_to_vendor: class: 'link' }}</p>
+
+      <a class='link' href="{{ collections['everything'].url | sort_by: 'price-ascending' }}">Ascending order</a>
+
+      <p>The following link is no different from the 'Clothing' link: </p>
+      <!-- But you have much control over the link tag here -->
+      <a class="link" href="{{ "Clothing" | url_for_type }}">Clothing</a>
+      
+      <a class="link" href="{{ "Homotel" | url_for_vendor }}">Homotel</a>
+
+      {% assign last_product = collections['everything'].last %}
+
+      <p><a href="{{ last_product.url | within: collections['everything'] }}">Last product in everything</a></p>
+
+      <div class="box">Aa</div>
+
+      <p> Brightness difference: {{ 'rgb(162, 0, 255)' | brightness_difference: 'rgb(9, 255, 0)' }} &#40;A Brightness difference of 125 is recommended&#41;</p>
+
+      <p>Brightness: {{ 'rgb(25, 0, 255)' | color_brightness }}</p>
+
+      <p>Color contrast: {{ 'rgb(9, 255, 0)' | color_contrast: 'rgb(25, 0, 255)' }}</p>
+
+      <p>Darkened color: {{ '#EA5AB9' | color_darken: 45 }}</p>
+      <p>Same color lightened: {{ '#EA5AB9' | color_lighten: 45 }}</p>
+
+      <p>Color: </p>
+      <div class="box" style="background-color: '#EA5AB9';">Aa</div>
+
+      <p>Same color but sturated: </p>
+      <div class="box" style="background-color: {{'#EA5AB9' |  color_desaturate: 30}};">Aa</div>
+
+      <p>Calculated color difference between: </p>
+      <div class="box" style="background-color: #720955">Aa</div>
+      <div class="box" style="background-color: #FFF3F9">Bb</div>
+      <p> is {{ "#720955" | color_difference: "#FFF3F9" }}</p>
+
+      <p>The red value in the color #EA5AB9 is {{ '#EA5AB9' | color_extract: '#EA5AB9' }}</p>
+
+      <p>The two colors, #E800B0 and #00936F, when mixed give {{ '#E800B0' | color_mix: '#00936F', 50 }}</p>
+
+      <div class="box" style="background-color: #E800B0">#E800B0</div>
+      +
+      <div class="box" style="background-color: #00936F">#00936F</div>
+      =
+      <div class="box" style="background-color: {{ '#E800B0' | color_mix: '#00936F', 50 }}">{{  '#E800B0' | color_mix: '#00936F', 50 }}</div>
+      
+      <p>Modified color: {{ '#EA5AB9' | color_modify: 'red', 255 }}</p>
+
+      <p>Saturated color: {{ '#EA5AB9' | color_saturate: 30 }}</p>
+
+      <p>rgb(234, 90, 185) in hex: {{ 'rgb(234, 90, 185)' | color_to_hex }}</p>
+
+      <p>#EA5AB9 to hsl: {{ '#EA5AB9' | color_to_hsl }}</p>
+
+      <p>#EA5AB9 to rgb: {{ '#EA5AB9' | color_to_rgb }}</p>
+
+      {% if customer.has_avatar? %}
+        <p>Avatar available!</p>
+        {{ customer | avatar }}
+      {% else %}
+        <p>No avatar available.</p>
+      {% endif %}
+
+      <p>{{ 'Log in' |  customer_login_link }}</p>
+      <p>{{ 'Log out' | customer_logout_link }}</p>
+
+      {{ shop | login_button }}
+
+      <p>{{ 'Create an account' | customer_register_link }}</p>
+
+      {% endcomment %}
+
+      {% assign emptyVar = false %}
+      {% assign defaultVal = 'Var Content' %}
+
+      {% comment %} if the variable has a falsy value than the default value will be used. {% endcomment %}
+
+      <p>Default content of an empty variable: {{ emptyVar | default: defaultVal}}</p>
+
+      <p>This is an empty variable: {{ emptyVar | default: defaultVal, allow_false: true }}</p>
+
+      {% paginate collections['everything'].products by 2 %}
+        {% for product in collections['everything'].products -%}
+          <p>{{ product.title }}</p>
+        {%- endfor %}
+
+        {{- paginate | default_pagination }}
+      {% endpaginate %}
+
+      <p>{{ settings.type_header_font | font_url }}</p>
+
+      <p>{{ 'now' | date: '%B %d, %Y' }}</p>
+      <p>{{ 'now' | date: format: 'basic' }}</p>
+      <div class="js-container"></div>
+
+      {% assign first_product_variant = collections['everything'].products.first.variants.first %}
+
+      <p>{{ first_product_variant.weight |  weight_with_unit }}</p>
+
+      {% comment %} This overrides the unit set in the admin {% endcomment %}
+      <p>{{ first_product_variant.weight |  weight_with_unit: 'g' }}</p>
+
+      {% assign search_terms = "potion, power, fresh" | split: ", " %}
+
+      {% assign item_description = "This is a freshly brewed potion for gaining thrice the current power" %}
+
+      <p>{{ item_description | highlight: search_terms }}</p>
+
+      {{ collections['everything'].products.first.title | link_to: collections['everything'].products.first.url, class: 'link' }}
+
+      <p>Check this out: </p>
+      {{ 'collection-1' | placeholder_svg_tag }}
+
+    </div>
+
+    <script>
+      let thisVar = 'Back to JS!!!';
+
+      // You can use the json tag to convert an object into JSON format
+
+      // document.querySelector('.js-container').innerHTML = `
+      //   <p>
+      //     {{ collections['everything'].products.first |  json }}
+      //   </p>
+      // `;
+
+      console.log(thisVar);
+    </script>
+  </body>
+</html>
